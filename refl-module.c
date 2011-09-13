@@ -125,7 +125,7 @@ __refl_die_attr_pred (Dwarf_Die *die, void *data)
   if (attr == NULL)
     return DWARF_CB_OK;
 
-  //fprintf (stderr, "%#lx\n", dwarf_dieoffset (die));
+  /* fprintf (stderr, "%#lx\n", dwarf_dieoffset (die)); */
   return pred_data->callback (attr, pred_data->data);
 }
 
@@ -153,10 +153,8 @@ build_type_assembly (Dwarf_Die *die, int tag,
   if (type == NULL)
     return -1;
 
-  *ret_assembly = (struct refl_assembly) {
-    .kind = refl_as_type,
-    .type = type
-  };
+  ret_assembly->kind = refl_as_type;
+  ret_assembly->type = type;
   return 1;
 }
 
@@ -168,10 +166,8 @@ build_method_assembly (Dwarf_Die *die, int tag,
   if (method == NULL)
     return -1;
 
-  *ret_assembly = (struct refl_assembly) {
-    .kind = refl_as_method,
-    .method = method
-  };
+  ret_assembly->kind = refl_as_type;
+  ret_assembly->method = method;
   return 1;
 }
 
