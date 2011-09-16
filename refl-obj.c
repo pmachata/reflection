@@ -105,7 +105,7 @@ refl_access (struct refl *refl, struct refl_object *obj, char const *lookfor)
 	return NULL;
 
       struct refl_object *result
-	= __refl_object_begin (field_type, obj->data + location);
+	= __refl_object_begin (field_type, (char *)obj->data + location);
       if (result == NULL)
 	__refl_type_free (field_type);
 

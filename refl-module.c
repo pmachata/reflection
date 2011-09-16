@@ -154,7 +154,7 @@ build_type_assembly (Dwarf_Die *die, int tag,
     return -1;
 
   ret_assembly->kind = refl_as_type;
-  ret_assembly->type = type;
+  ret_assembly->u.type = type;
   return 1;
 }
 
@@ -167,7 +167,7 @@ build_method_assembly (Dwarf_Die *die, int tag,
     return -1;
 
   ret_assembly->kind = refl_as_type;
-  ret_assembly->method = method;
+  ret_assembly->u.method = method;
   return 1;
 }
 

@@ -32,7 +32,7 @@ main(int argc, char *argv[])
     error (1, 0, "refl_assembly_named: %s", refl_errmsg (refl_error ()));
 
   assert (assembly.kind == refl_as_type);
-  struct refl_type *mystruct = assembly.type;
+  struct refl_type *mystruct = assembly.u.type;
 
   struct refl_object *obj = refl_new (refl, mystruct);
   if (obj == NULL)

@@ -30,7 +30,7 @@ struct refl_assembly
   {
     struct refl_type *type;
     struct refl_method *method;
-  };
+  } u;
 };
 
 enum refl_cb_status
