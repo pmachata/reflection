@@ -6,13 +6,6 @@ CXXFLAGS = -std=c++0x $(COMPILEFLAGS) $(CXXPPFLAGS)
 CFLAGS = -std=c99 -pedantic $(COMPILEFLAGS)
 LDFLAGS = $(OPENMP)
 
-DIRS = .
-ALLSOURCES = $(foreach dir,$(DIRS),$(wildcard $(dir)/*.c $(dir)/*.cc $(dir)/*.h $(dir)/*.hh)) Makefile
-CCSOURCES = $(filter %.c %.cc,$(ALLSOURCES))
-DEPFILES = $(foreach pat,%.c %.cc,$(patsubst $(pat),$(pat)-dep,$(filter $(pat),$(CCSOURCES))))
-
-LDFLAGS +=
-
 all: $(TARGETS)
 
 userefl: LD = $(CXX)
@@ -20,14 +13,23 @@ userefl: userefl.o librefl.so
 
 librefl.so: LDFLAGS += -shared -ldw
 librefl.so: LD = $(CC)
-librefl.so: refl.o refl-error.o refl-module.o refl-type.o refl-obj.o refl-method.o
+librefl.so: \
+	refl.o refl-error.o refl-module.o \
+	refl-type.o refl-obj.o refl-method.o
 
--include $(DEPFILES)
+%.o: %.cc %.d
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-%.cc-dep: %.cc
-	$(CXX) $(CXXFLAGS) -MM -MT '$(<:%.cc=%.o) $@' $< > $@
-%.c-dep: %.c
-	$(CC) $(CFLAGS) -MM -MT '$(<:%.c=%.o) $@' $< > $@
+%.o: %.c %.d
+	$(CC) $(CFLAGS) -c $< -o $@
+
+include $(wildcard *.d)
+
+%.d: %.cc
+	$(CXX) $(CXXFLAGS) -MM -MT '$(<F:%.cc=%.o) $@' $< > $@
+
+%.d: %.c
+	$(CC) $(CFLAGS) -MM -MT '$(<F:%.c=%.o) $@' $< > $@
 
 $(TARGETS):
 	$(LD) $(LDFLAGS) $^ -o $@
@@ -37,6 +39,10 @@ test-%: %.o %.cc test.o
 	./$@ || (rm -f $@; exit 1)
 
 clean:
-	rm -f *.o *.*-dep $(TARGETS)
+	rm -f *.o *.d $(TARGETS)
 
-.PHONY: all clean dist
+distclean: clean
+	rm -f Makefile
+
+.PHONY: all clean dist distclean
+.PRECIOUS: %.d

@@ -1,0 +1,4 @@
+#!/bin/bash
+SRCDIR=$(dirname $0)
+OBJDIR=$(pwd)
+sed "s,@srcdir@,$SRCDIR,g" $SRCDIR/Makefile.in > $OBJDIR/Makefile

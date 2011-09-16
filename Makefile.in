@@ -1,0 +1,4 @@
+SRCDIR = @srcdir@
+all:
+%:
+	$(MAKE) -r -f $(SRCDIR)/refl.mk VPATH=$(SRCDIR) $@
