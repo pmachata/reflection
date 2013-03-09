@@ -103,4 +103,12 @@ struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
 struct refl_object *__refl_object_begin_inline (struct refl_type *type,
 						size_t size);
 
+/* Wrapper around dwarf_attr_integrate that sets error on failure.  */
+Dwarf_Attribute *__refl_attr_integrate (Dwarf_Die *die, int name,
+					Dwarf_Attribute *mem);
+
+/* Find DW_AT_name of DIE and return the corresponding string.  Return
+   NULL and set an error if it fails or name is unavailable.  */
+char const *__refl_die_name (Dwarf_Die *die);
+
 #endif//_REFLP_H_INCLUDED

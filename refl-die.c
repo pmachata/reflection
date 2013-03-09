@@ -104,3 +104,27 @@ __refl_each_die (Dwfl_Module *module, Dwarf_Die *root, Dwarf_Die *ret,
 
   return 1;
 }
+
+Dwarf_Attribute *
+__refl_attr_integrate (Dwarf_Die *die, int name, Dwarf_Attribute *mem)
+{
+  Dwarf_Attribute *ret = dwarf_attr_integrate (die, name, mem);
+  if (ret == NULL)
+    __refl_seterr (REFL_E_DWARF);
+  return ret;
+}
+
+char const *
+__refl_die_name (Dwarf_Die *die)
+{
+  Dwarf_Attribute attr_mem, *attr
+    = __refl_attr_integrate (die, DW_AT_name, &attr_mem);
+  if (attr == NULL)
+    return NULL;
+
+  const char *str = dwarf_formstring (attr);
+  if (str == NULL)
+      __refl_seterr (REFL_E_DWARF);
+
+  return str;
+}

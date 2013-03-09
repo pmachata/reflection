@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,12 +46,9 @@ refl_type_sizeof (struct refl *refl, struct refl_type *type)
     return type->size;
 
   Dwarf_Attribute attr_mem, *attr
-    = dwarf_attr_integrate (&type->die, DW_AT_byte_size, &attr_mem);
+    = __refl_attr_integrate (&type->die, DW_AT_byte_size, &attr_mem);
   if (attr == NULL)
-    {
-      __refl_error (REFL_ME_DWARF);
-      return (size_t)-1;
-    }
+    return (size_t)-1;
 
   Dwarf_Word size;
   if (dwarf_formudata (attr, &size) != 0)

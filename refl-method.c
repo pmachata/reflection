@@ -94,18 +94,7 @@ refl_method_cur (struct refl *refl)
 char const *
 refl_method_name (struct refl_method *method)
 {
-  if (method->name != NULL)
-    return method->name;
-
-  Dwarf_Attribute att_mem, *att
-    = dwarf_attr_integrate (&method->die, DW_AT_name, &att_mem);
-
-  char const *result = NULL;
-  if (att != NULL)
-    result = dwarf_formstring (att);
-  if (result == NULL)
-    result = "???";
-
-  method->name = result;
-  return result;
+  if (method->name == NULL)
+    method->name = __refl_die_name (&method->die);
+  return method->name;
 }
