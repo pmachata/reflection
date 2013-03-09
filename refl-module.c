@@ -152,6 +152,6 @@ refl_assembly_named (struct refl *refl, struct refl_module *reflmod,
       return build_method_assembly (die, tag, ret_assembly);
     };
 
-  __refl_error (REFL_ME_DWARF);
+  __refl_seterr (REFL_ME_DWARF);
   return -1;
 }

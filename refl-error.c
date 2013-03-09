@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 static __thread struct refl_error global_error;
 
 void
-__refl_seterr_2 (int major, int minor)
+__refl_seterr_2 (enum __refl_major_errcode major, int minor)
 {
   global_error.major = major;
   global_error.minor = minor;
@@ -50,6 +50,11 @@ __refl_seterr (enum __refl_major_errcode major)
     case REFL_E_DWARF:
       __refl_seterr_2 (major, dwarf_errno ());
       return;
+
+    case REFL_E_REFL:
+      /* Refl-owned error codes are set manually as well.  */
+      assert (major != REFL_E_REFL);
+      abort ();
     };
 
   assert (!"unhandled major error code!");

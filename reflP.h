@@ -24,13 +24,10 @@
 enum __refl_major_errcode
   {
     REFL_E_NOERROR,
+    REFL_E_REFL,
     REFL_E_SYSTEM,
     REFL_E_DWFL,
     REFL_E_DWARF,
-  };
-enum
-  {
-    REFL_E_REFL = REFL_E_DWARF + 1,
   };
 
 enum __refl_minor_errcode
@@ -61,9 +58,9 @@ struct refl_object
   void *data;
 };
 
-void __refl_seterr_2 (int major, int minor);
+void __refl_seterr_2 (enum __refl_major_errcode major, int minor);
 void __refl_seterr (enum __refl_major_errcode major);
-void __refl_error (enum __refl_minor_errcode minor);
+
 void *__refl_malloc (size_t size);
 
 struct refl_method *__refl_method_begin (Dwarf_Die *die);

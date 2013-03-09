@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ struct refl_module *refl_module_exe (struct refl *refl);
 struct refl_module *refl_module_addr (struct refl *refl, void *ptr);
 struct refl_module *refl_module_cur (struct refl *refl);
 
-struct refl_method *refl_method_addr (struct refl *refl, void *ptr);
+struct refl_method *refl_method_at (struct refl *refl, void *ptr);
 struct refl_method *refl_method_cur (struct refl *refl);
 char const *refl_method_name (struct refl_method *method);
 

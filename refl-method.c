@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ __refl_method_begin (Dwarf_Die *die)
 }
 
 struct refl_method *
-refl_method_addr (struct refl *refl, void *ptr)
+refl_method_at (struct refl *refl, void *ptr)
 {
   Dwarf_Addr addr = (Dwarf_Addr)ptr;
 
@@ -56,13 +56,13 @@ refl_method_addr (struct refl *refl, void *ptr)
   int tag = dwarf_tag (die);
   if (tag != DW_TAG_compile_unit)
     {
-      __refl_error (REFL_ME_DWARF);
+      __refl_seterr (REFL_E_DWARF);
       return NULL;
     }
 
   if (dwarf_child (die, &die_mem))
     {
-      __refl_error (REFL_ME_DWARF);
+      __refl_seterr (REFL_E_DWARF);
       return NULL;
     }
 
@@ -88,7 +88,7 @@ refl_method_addr (struct refl *refl, void *ptr)
 struct refl_method *
 refl_method_cur (struct refl *refl)
 {
-  return refl_method_addr (refl, __builtin_return_address (0));
+  return refl_method_at (refl, __builtin_return_address (0));
 }
 
 char const *

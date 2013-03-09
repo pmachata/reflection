@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ refl_access (struct refl *refl, struct refl_object *obj, char const *lookfor)
   if (dwarf_child (&type->die, &die_mem))
     {
     err:
-      __refl_error (REFL_ME_DWARF);
+      __refl_seterr (REFL_E_DWARF);
       return NULL;
     }
 
