@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,17 +70,37 @@ struct refl_method *__refl_method_begin (Dwarf_Die *die);
 struct refl_type *__refl_type_begin (Dwarf_Die *die);
 void __refl_type_free (struct refl_type *type);
 
+struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
+struct refl_object *__refl_object_begin_inline (struct refl_type *type,
+						size_t size);
+
+/* Iterate die tree rooted at ROOT.  At each die, CALLBACK is called
+   with that die and DATA.  If CALLBACK returns refl_cb_stop, the
+   iteration stops, current die is copied to RET, and 0 is returned.
+   If it returns refl_cb_fail, -1 is returned.  Otherwise the
+   iteration continues.  */
 int __refl_die_tree (Dwarf_Die *root, Dwarf_Die *ret,
 		     enum refl_cb_status (*callback) (Dwarf_Die *die,
 						      void *data),
 		     void *data);
 
+/* Iterate all CU's in module.  Calls __refl_die_tree under the hood,
+   the protocol is the same.  */
 int __refl_each_die (Dwfl_Module *module, Dwarf_Die *root, Dwarf_Die *ret,
 		     enum refl_cb_status (*callback) (Dwarf_Die *die,
 						      void *data),
 		     void *data);
 
+/* Wrapper around dwarf_attr_integrate that sets error on failure.  */
+Dwarf_Attribute *__refl_attr_integrate (Dwarf_Die *die, int name,
+					Dwarf_Attribute *mem);
+
+/* Find DW_AT_name of DIE and return the corresponding string.  Return
+   NULL and set an error if it fails or name is unavailable.  */
+char const *__refl_die_name (Dwarf_Die *die);
+
 struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
 struct refl_object *__refl_object_begin_inline (struct refl_type *type,
 						size_t size);
+
 #endif//_REFLP_H_INCLUDED

@@ -13,9 +13,8 @@ userefl: userefl.o librefl.so
 
 librefl.so: LDFLAGS += -shared -ldw
 librefl.so: LD = $(CC)
-librefl.so: \
-	refl.o refl-error.o refl-module.o \
-	refl-type.o refl-obj.o refl-method.o
+librefl.so: refl.o refl-error.o refl-module.o refl-type.o refl-obj.o	\
+	refl-method.o refl-die.o
 
 %.o: %.cc %.d
 	$(CXX) $(CXXFLAGS) -c $< -o $@
