@@ -2,7 +2,8 @@ Reflection (librefl) is a C library for run-time reflection,
 i.e. working with objects of the program from within that program
 itself (like what you have in any high-level language).  It works by
 interpreting Dwarf debugging information stored at the binary itself.
-It uses libelf, libdw and libdwfl of elfutils to read the Dwarf data.
+It uses libelf, libdw and libdwfl of elfutils to read the Dwarf data
+and libffi to invoke functions.
 
 The library is currently in very early stage of development that I
 call a "weekend hack", or more euphemistically, "proof of the
@@ -11,10 +12,5 @@ concept".  It's not even a "work in progress," because, well, it was a
 
 https://github.com/pmachata/reflection/blob/HEAD/userefl.cc
 
-Should this ever grow into something serious, it would presumably also
-need to pull in libffi for constructing calls to functions.  In theory
-one could use the very same Dwarf information to glean the relevant
-ABI bits when constructing the call (though there are known bugs,
-e.g. the parameter location information is wrong for struct arguments
-on x86_64).  But feeding the right data into the right registers from
-C might prove quite tedious, and libffi is the tool for the job.
+Note that there is no way to learn what an arbitrary void* points to.
+Heap objects are not described at runtime in any way.
