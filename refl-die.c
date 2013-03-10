@@ -21,53 +21,64 @@
 #include "reflP.h"
 
 int
-__refl_die_tree (Dwarf_Die *root, Dwarf_Die *ret,
+__refl_die_tree (Dwarf_Die *root, Dwarf_Die *ret, bool recurse,
 		 enum refl_cb_status (*callback) (Dwarf_Die *die,
 						  void *data),
 		 void *data)
 {
-  Dwarf_Die die_mem = *root, *die = &die_mem;
-  while (die != NULL)
+  switch (callback (root, data))
     {
-      switch (callback (die, data))
-	{
-	case refl_cb_stop:
-	  *ret = *die;
-	  return 0;
-	case refl_cb_fail:
-	  return -1;
-	case refl_cb_next:
-	  ;
-	};
+    case refl_cb_stop:
+      if (ret != NULL)
+	*ret = *root;
+      return 0;
+    case refl_cb_fail:
+      return -1;
+    case refl_cb_next:
+      ;
+    };
 
-      if (dwarf_haschildren (die))
-	{
-	  Dwarf_Die child_mem;
-	  if (dwarf_child (die, &child_mem))
-	    {
-	    err:
-	      __refl_seterr (REFL_E_DWARF);
-	      return -1;
-	    }
+  if (recurse)
+    return __refl_die_children (root, ret, recurse, callback, data);
 
-	  int result = __refl_die_tree (&child_mem, &child_mem,
-					callback, data);
-	  if (result == 0)
-	      *ret = child_mem;
-	  if (result <= 0)
-	    return result;
-	}
+  return 1;
+}
 
-      switch (dwarf_siblingof (die, &die_mem))
+int
+__refl_die_children (Dwarf_Die *root, Dwarf_Die *ret, bool recurse,
+		     enum refl_cb_status (*callback) (Dwarf_Die *die,
+						      void *data),
+		     void *data)
+{
+  if (!dwarf_haschildren (root))
+    return 1;
+
+  Dwarf_Die die_mem;
+  if (dwarf_child (root, &die_mem))
+    {
+      __refl_seterr (REFL_E_DWARF);
+      return -1;
+    }
+
+  while (1)
+    {
+      int result = __refl_die_tree (&die_mem, ret, recurse,
+				    callback, data);
+      if (result <= 0)
+	return result;
+
+      switch (dwarf_siblingof (&die_mem, &die_mem))
 	{
 	case 0: continue;
-	case -1: goto err;
+	case -1:
+	  {
+	    __refl_seterr (REFL_E_DWARF);
+	    return -1;
+	  }
 	}
 
       break;
     }
-
-  return 1;
 }
 
 int
@@ -94,8 +105,8 @@ __refl_each_die (Dwfl_Module *module, Dwarf_Die *root, Dwarf_Die *ret,
   while (root != NULL)
     {
       Dwarf_Die found;
-      int result = __refl_die_tree (root, &found, callback, data);
-      if (result == 0)
+      int result = __refl_die_tree (root, &found, true, callback, data);
+      if (result == 0 && ret != NULL)
 	*ret = found;
       if (result <= 0)
 	return result;

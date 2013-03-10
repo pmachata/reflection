@@ -71,15 +71,23 @@ struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
 struct refl_object *__refl_object_begin_inline (struct refl_type *type,
 						size_t size);
 
+
 /* Iterate die tree rooted at ROOT.  At each die, CALLBACK is called
-   with that die and DATA.  If CALLBACK returns refl_cb_stop, the
-   iteration stops, current die is copied to RET, and 0 is returned.
-   If it returns refl_cb_fail, -1 is returned.  Otherwise the
-   iteration continues.  */
-int __refl_die_tree (Dwarf_Die *root, Dwarf_Die *ret,
+   with that die and DATA.  If CALLBACK returns refl_cb_next, the
+   iteration continues; on return of refl_cb_fail, iteration stops and
+   a negative value is returned.  On return of refl_cb_stop, the
+   iteration stops, current die is copied to RET, and non-negative
+   value is returned.  */
+int __refl_die_tree (Dwarf_Die *root, Dwarf_Die *ret, bool recurse,
 		     enum refl_cb_status (*callback) (Dwarf_Die *die,
 						      void *data),
 		     void *data);
+
+/* Like above, but exclude ROOT itself from iteration.  */
+int __refl_die_children (Dwarf_Die *root, Dwarf_Die *ret, bool recurse,
+			 enum refl_cb_status (*callback) (Dwarf_Die *die,
+							  void *data),
+			 void *data);
 
 /* Iterate all CU's in module.  Calls __refl_die_tree under the hood,
    the protocol is the same.  */
@@ -95,10 +103,6 @@ Dwarf_Attribute *__refl_attr_integrate (Dwarf_Die *die, int name,
 /* Find DW_AT_name of DIE and return the corresponding string.  Return
    NULL and set an error if it fails or name is unavailable.  */
 char const *__refl_die_name (Dwarf_Die *die);
-
-struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
-struct refl_object *__refl_object_begin_inline (struct refl_type *type,
-						size_t size);
 
 struct __refl_die_attr_pred
 {
