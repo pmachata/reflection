@@ -149,3 +149,13 @@ refl_assign_int (struct refl_object *obj, int i)
 {
   memcpy (refl_object_cdata (obj), &i, sizeof (i));
 }
+
+struct refl_object *
+refl_new (struct refl *refl, struct refl_type *type)
+{
+  size_t size = refl_type_sizeof (refl, type);
+  if (size == (size_t)-1)
+    return NULL;
+
+  return __refl_object_begin_inline (type, size);
+}
