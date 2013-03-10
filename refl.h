@@ -89,6 +89,7 @@ void refl_assign_int (struct refl_object *obj, int value);
 size_t refl_type_sizeof (struct refl *refl, struct refl_type *type);
 
 void *refl_object_cdata (struct refl_object *obj);
+struct refl_type *refl_object_type (struct refl_object *obj);
 
 #ifdef __cplusplus
 }

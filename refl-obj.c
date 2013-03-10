@@ -138,6 +138,12 @@ refl_object_cdata (struct refl_object *obj)
   return obj->data;
 }
 
+struct refl_type *
+refl_object_type (struct refl_object *obj)
+{
+  return obj->type;
+}
+
 void
 refl_assign_int (struct refl_object *obj, int i)
 {
