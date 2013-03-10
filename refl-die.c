@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <assert.h>
+#include <string.h>
 #include <dwarf.h>
 #include "reflP.h"
 
@@ -103,6 +105,35 @@ __refl_each_die (Dwfl_Module *module, Dwarf_Die *root, Dwarf_Die *ret,
     }
 
   return 1;
+}
+
+enum refl_cb_status
+__refl_die_attr_pred (Dwarf_Die *die, void *data)
+{
+  struct __refl_die_attr_pred *pred_data = data;
+  Dwarf_Attribute attr_mem, *attr
+    = dwarf_attr (die, pred_data->at_name, &attr_mem);
+  if (attr == NULL)
+    return DWARF_CB_OK;
+
+  /* fprintf (stderr, "%#lx\n", dwarf_dieoffset (die)); */
+  return pred_data->callback (attr, pred_data->data);
+}
+
+enum refl_cb_status
+__refl_attr_match_string (Dwarf_Attribute *attr, void *data)
+{
+  char const *name = data;
+  assert (name != NULL);
+
+  char const *value = dwarf_formstring (attr);
+  if (value == NULL)
+    {
+      __refl_seterr (REFL_E_DWARF);
+      return refl_cb_fail;
+    }
+
+  return strcmp (name, value) != 0 ? refl_cb_next : refl_cb_stop;
 }
 
 Dwarf_Attribute *

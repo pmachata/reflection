@@ -38,42 +38,6 @@ refl_module_cur (struct refl *refl)
   return refl_module_addr (refl, __builtin_return_address (0));
 }
 
-struct __refl_die_attr_pred
-{
-  int at_name;
-  enum refl_cb_status (*callback) (Dwarf_Attribute *attr, void *data);
-  void *data;
-};
-
-enum refl_cb_status
-__refl_die_attr_pred (Dwarf_Die *die, void *data)
-{
-  struct __refl_die_attr_pred *pred_data = data;
-  Dwarf_Attribute attr_mem, *attr
-    = dwarf_attr (die, pred_data->at_name, &attr_mem);
-  if (attr == NULL)
-    return DWARF_CB_OK;
-
-  /* fprintf (stderr, "%#lx\n", dwarf_dieoffset (die)); */
-  return pred_data->callback (attr, pred_data->data);
-}
-
-enum refl_cb_status
-__refl_attr_match_string (Dwarf_Attribute *attr, void *data)
-{
-  char const *name = data;
-  assert (name != NULL);
-
-  char const *value = dwarf_formstring (attr);
-  if (value == NULL)
-    {
-      __refl_seterr (REFL_E_DWARF);
-      return refl_cb_fail;
-    }
-
-  return strcmp (name, value) ? refl_cb_next : refl_cb_stop;
-}
-
 static int
 build_type_assembly (Dwarf_Die *die, int tag,
 		     struct refl_assembly *ret_assembly)

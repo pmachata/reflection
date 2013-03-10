@@ -100,6 +100,26 @@ struct refl_object *__refl_object_begin (struct refl_type *type, void *data);
 struct refl_object *__refl_object_begin_inline (struct refl_type *type,
 						size_t size);
 
+struct __refl_die_attr_pred
+{
+  int at_name;
+  enum refl_cb_status (*callback) (Dwarf_Attribute *attr, void *data);
+  void *data;
+};
+
+/* Callback for die iteration.  Use as an argument to __refl_die_tree
+   and friends.  DATA shall be a pointer to struct __refl_die_tree.
+   An attribute named DATA->at_name is looked up in each visited die,
+   and if present, DATA->callback is called with that attribute and
+   DATA->data as arguments.  */
+enum refl_cb_status __refl_die_attr_pred (Dwarf_Die *die, void *data);
+
+/* Callback for __refl_die_attr_pred.  ATTR shall be a string
+   attribute, whose value is compared to DATA.  Iteration stops, if
+   the two match.  */
+enum refl_cb_status __refl_attr_match_string (Dwarf_Attribute *attr,
+					      void *data);
+
 /* Wrapper around dwarf_attr_integrate that sets error on failure.  */
 Dwarf_Attribute *__refl_attr_integrate (Dwarf_Die *die, int name,
 					Dwarf_Attribute *mem);
