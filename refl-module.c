@@ -59,7 +59,7 @@ build_method_assembly (Dwarf_Die *die, int tag,
   if (method == NULL)
     return -1;
 
-  ret_assembly->kind = refl_as_type;
+  ret_assembly->kind = refl_as_method;
   ret_assembly->u.method = method;
   return 1;
 }

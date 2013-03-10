@@ -79,6 +79,8 @@ __refl_die_children (Dwarf_Die *root, Dwarf_Die *ret, bool recurse,
 
       break;
     }
+
+  return 1;
 }
 
 int
