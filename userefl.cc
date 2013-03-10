@@ -1,5 +1,5 @@
 /* Example program to demo the refl library.
- * Copyright (C) 2011 Petr Machata <pmachata@redhat.com>
+ * Copyright (C) 2011, 2013 Petr Machata <pmachata@redhat.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
+
 #include "refl.h"
 
 struct other
@@ -33,8 +35,22 @@ struct mystruct
   int k;
 };
 
+static void
+something (const char *c)
+{
+  fprintf (stderr, "simon says: %s\n", c);
+}
+
+void (*ddd)(const char *) = something;
+
+static void
+d (struct mystruct *my)
+{
+  fprintf (stderr, "{%d, {%d}, %d}\n", my->i, my->o.j, my->k);
+}
+
 int
-main(int argc, char *argv[])
+main (int argc, char *argv[])
 {
   struct refl *refl = refl_begin ();
   if (refl == NULL)
@@ -44,27 +60,66 @@ main(int argc, char *argv[])
   if (mod == NULL)
     error (1, 0, "refl_module_cur: %s", refl_errmsg (refl_error ()));
 
-  struct refl_assembly assembly;
-  if (refl_assembly_named (refl, mod, "mystruct", &assembly) <= 0)
-    error (1, 0, "refl_assembly_named: %s", refl_errmsg (refl_error ()));
+  struct refl_type *mystruct = refl_type_named (refl, mod, "mystruct");
 
-  assert (assembly.kind == refl_as_type);
-  struct refl_type *mystruct = assembly.u.type;
+  {
+    char *str;
+    if (refl_type_dump (refl, mystruct, &str) < 0)
+      error (1, 0, "refl_type_named: %s", refl_errmsg (refl_error ()));
+    fprintf (stderr, "mystruct is: '%s'\n", str);
+    free (str);
+  }
+
+  {
+    struct refl_object *obj = refl_object_named (refl, mod, "ddd");
+    if (obj != NULL)
+      {
+	struct refl_type *type = refl_object_type (obj);
+	assert (type != NULL);
+
+	char *str;
+	if (refl_type_dump (refl, type, &str) >= 0)
+	  {
+	    fprintf (stderr, "type of ddd: '%s'\n", str);
+	    free (str);
+	  }
+
+	size_t sz = refl_type_sizeof (refl, type);
+	assert (sz == sizeof (void *));
+	union
+	{
+	  void (*ptr)(char const *);
+	  char buf[0];
+	} u;
+
+	memcpy (u.buf, refl_object_cdata (obj), sizeof u);
+	fprintf (stderr, "ddd value: %p\ndirect call: ", u.ptr);
+	u.ptr ("it works");
+      }
+  }
 
   struct refl_object *obj = refl_new (refl, mystruct);
   if (obj == NULL)
     error (1, 0, "refl_new: %s", refl_errmsg (refl_error ()));
 
-  struct refl_object *other = refl_access (refl, obj, "o");
-  other = refl_access (refl, other, "j");
+  struct refl_object *o = refl_access (refl, obj, "o");
+  if (o == NULL)
+    error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
+  struct refl_object *o_j = refl_access (refl, o, "j");
+  if (o_j == NULL)
+    error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
 
   struct mystruct *my = (struct mystruct *)refl_object_cdata (obj);
 
-  refl_assign_int (other, 7);
-  fprintf (stderr, "%d\n", my->o.j);
+  refl_assign_int (o_j, 7);
+  d (my);
 
-  refl_assign_int (other, 4);
-  fprintf (stderr, "%d\n", my->o.j);
+  refl_assign_int (o_j, 4);
+  d (my);
+
+  refl_assign_int (refl_access (refl, obj, "i"), 1);
+  refl_assign_int (refl_access (refl, obj, "k"), 6);
+  d (my);
 
   refl_end (refl);
   return 0;
