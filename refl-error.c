@@ -94,7 +94,7 @@ refl_errmsg (struct refl_error error)
 	case REFL_ME_DWARF:
 	  return "invalid dwarf";
 	case REFL_ME_MISMATCH:
-	  return "mismatch in assembly kind";
+	  return "mismatch";
 	case REFL_ME_NOT_FOUND:
 	  return "entity not found";
 	}

@@ -36,12 +36,12 @@ struct mystruct
 };
 
 static void
-something (const char *c)
+something (int c)
 {
-  fprintf (stderr, "simon says: %s\n", c);
+  fprintf (stderr, "simon says: %d\n", c);
 }
 
-void (*ddd)(const char *) = something;
+void (*ddd)(int) = something;
 
 static void
 d (struct mystruct *my)
@@ -88,13 +88,13 @@ main (int argc, char *argv[])
 	assert (sz == sizeof (void *));
 	union
 	{
-	  void (*ptr)(char const *);
+	  void (*ptr)(int);
 	  char buf[0];
 	} u;
 
 	memcpy (u.buf, refl_object_cdata (obj), sizeof u);
 	fprintf (stderr, "ddd value: %p\ndirect call: ", u.ptr);
-	u.ptr ("it works");
+	u.ptr (17);
       }
   }
 
@@ -120,6 +120,14 @@ main (int argc, char *argv[])
   refl_assign_int (refl_access (refl, obj, "i"), 1);
   refl_assign_int (refl_access (refl, obj, "k"), 6);
   d (my);
+
+  struct refl_method *st = refl_method_named (refl, mod, "something");
+  assert (st != NULL);
+
+  struct refl_object *ft = refl_new (refl, refl_type_named (refl, mod, "int"));
+  assert (ft != NULL);
+  refl_assign_int (ft, 42);
+  refl_method_call (refl, st, &ft, 1, NULL);
 
   refl_end (refl);
   return 0;

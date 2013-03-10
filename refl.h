@@ -76,6 +76,11 @@ struct refl_method *refl_method_at (struct refl *refl, void *ptr);
 struct refl_method *refl_method_cur (struct refl *refl);
 char const *refl_method_name (struct refl_method *method);
 
+
+int refl_method_call (struct refl *refl, struct refl_method *method,
+		      struct refl_object *args[], size_t nargs,
+		      struct refl_object **ret);
+
 int refl_assembly_named (struct refl *refl,
 			 struct refl_module *mod, char const *name,
 			 struct refl_assembly *ret_assembly);
@@ -97,6 +102,7 @@ struct refl_object *refl_object_named (struct refl *refl,
 int refl_type_dump (struct refl *refl, struct refl_type *type, char **bufp);
 
 struct refl_object *refl_new (struct refl *refl, struct refl_type *type);
+
 struct refl_object *refl_access (struct refl *refl, struct refl_object *obj,
 				 char const *name);
 void refl_assign_int (struct refl_object *obj, int value);
