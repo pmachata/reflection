@@ -172,3 +172,19 @@ __refl_die_name (Dwarf_Die *die)
 
   return str;
 }
+
+Dwarf_Die *
+__refl_die_type (Dwarf_Die *die, Dwarf_Die *ret_mem)
+{
+  Dwarf_Attribute type_att_mem, *type_att
+    = __refl_attr_integrate (die, DW_AT_type, &type_att_mem);
+  Dwarf_Die *ret = NULL;
+  if (type_att == NULL
+      || (ret = dwarf_formref_die (type_att, ret_mem)) == NULL)
+    {
+      __refl_seterr (REFL_E_DWARF);
+      return NULL;
+    }
+
+  return ret;
+}

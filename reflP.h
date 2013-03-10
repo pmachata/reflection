@@ -132,4 +132,8 @@ Dwarf_Attribute *__refl_attr_integrate (Dwarf_Die *die, int name,
    NULL and set an error if it fails or name is unavailable.  */
 char const *__refl_die_name (Dwarf_Die *die);
 
+/* Find DW_AT_type of DIE and return the corresponding Die.  Return
+   NULL and set an error if it fails or type is unavailable.  */
+Dwarf_Die *__refl_die_type (Dwarf_Die *die, Dwarf_Die *ret_mem);
+
 #endif//_REFLP_H_INCLUDED
