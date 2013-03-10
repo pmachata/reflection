@@ -238,6 +238,7 @@ refl_method_call (struct refl *refl, struct refl_method *method,
     return -1;
 
   ffi_type *rettype;
+  struct refl_type *type;
   if (dwarf_hasattr (&method->die, DW_AT_type))
     {
       Dwarf_Die type_die_mem, *type_die
@@ -245,9 +246,16 @@ refl_method_call (struct refl *refl, struct refl_method *method,
       if (type_die == NULL
 	  || dw_type_to_ffi (type_die, &rettype) < 0)
 	return -1;
+
+      type = __refl_type_begin (type_die);
+      if (type == NULL)
+	return -1;
     }
   else
-    rettype = &ffi_type_void;
+    {
+      rettype = &ffi_type_void;
+      type = NULL;
+    }
 
   ffi_cif cif;
   ffi_status stat
@@ -256,8 +264,34 @@ refl_method_call (struct refl *refl, struct refl_method *method,
      complain about.  */
   assert (stat == FFI_OK);
 
-  int rc;   /* XXX -- need full fledged return object */
-  ffi_call(&cif, (void (*)())low_pc, &rc, ptrs);
+  struct refl_object *tmp = NULL;
+  if (ret == NULL)
+    ret = &tmp;
+
+  void *ret_buf;
+  if (type != NULL)
+    {
+      size_t sz = refl_type_sizeof (refl, type);
+      if (sz < 8)
+	sz = 8;
+      *ret = __refl_object_begin_inline (type, sz);
+      if (*ret == NULL)
+	{
+	  __refl_type_free (type);
+	  return -1;
+	}
+      ret_buf = refl_object_cdata (*ret);
+    }
+  else
+    ret_buf = NULL;
+
+  ffi_call (&cif, (void (*)())low_pc, ret_buf, ptrs);
+
+  if (tmp != NULL)
+    {
+      __refl_type_free (type);
+      free (tmp);
+    }
 
   return 0;
 }

@@ -35,13 +35,14 @@ struct mystruct
   int k;
 };
 
-static void
+static int
 something (int c)
 {
   fprintf (stderr, "simon says: %d\n", c);
+  return c + 1;
 }
 
-void (*ddd)(int) = something;
+int (*ddd)(int) = something;
 
 static void
 d (struct mystruct *my)
@@ -127,7 +128,12 @@ main (int argc, char *argv[])
   struct refl_object *ft = refl_new (refl, refl_type_named (refl, mod, "int"));
   assert (ft != NULL);
   refl_assign_int (ft, 42);
-  refl_method_call (refl, st, &ft, 1, NULL);
+
+  struct refl_object *rv = NULL;
+  if (refl_method_call (refl, st, &ft, 1, &rv) < 0)
+    error (1, 0, "refl_method_call: %s", refl_errmsg (refl_error ()));
+  assert (rv != NULL);
+  fprintf (stderr, "return value: %d\n", *(int *)refl_object_cdata (rv));
 
   refl_end (refl);
   return 0;
