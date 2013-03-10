@@ -94,6 +94,8 @@ struct refl_object *refl_object_named (struct refl *refl,
 				       struct refl_module *mod,
 				       char const *name);
 
+int refl_type_dump (struct refl *refl, struct refl_type *type, char **bufp);
+
 struct refl_object *refl_new (struct refl *refl, struct refl_type *type);
 struct refl_object *refl_access (struct refl *refl, struct refl_object *obj,
 				 char const *name);
