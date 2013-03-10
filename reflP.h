@@ -33,6 +33,8 @@ enum __refl_major_errcode
 enum __refl_minor_errcode
   {
     REFL_ME_DWARF,
+    REFL_ME_NOT_FOUND,
+    REFL_ME_MISMATCH,
   };
 
 struct refl

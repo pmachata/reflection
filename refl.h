@@ -40,7 +40,8 @@ struct refl_object;
 enum refl_assembly_kind
   {
     refl_as_type,
-    refl_as_method
+    refl_as_method,
+    refl_as_object,
   };
 
 struct refl_assembly
@@ -50,6 +51,7 @@ struct refl_assembly
   {
     struct refl_type *type;
     struct refl_method *method;
+    struct refl_object *object;
   } u;
 };
 
@@ -78,8 +80,19 @@ int refl_assembly_named (struct refl *refl,
 			 struct refl_module *mod, char const *name,
 			 struct refl_assembly *ret_assembly);
 
+struct refl_type *refl_assembly_get_type (struct refl_assembly *assembly);
+struct refl_method *refl_assembly_get_method (struct refl_assembly *assembly);
+struct refl_object *refl_assembly_get_object (struct refl_assembly *assembly);
+
 struct refl_type *refl_type_named (struct refl *refl,
-				   struct refl_module *mod, char const *name);
+				   struct refl_module *mod,
+				   char const *name);
+struct refl_method *refl_method_named (struct refl *refl,
+				       struct refl_module *mod,
+				       char const *name);
+struct refl_object *refl_object_named (struct refl *refl,
+				       struct refl_module *mod,
+				       char const *name);
 
 struct refl_object *refl_new (struct refl *refl, struct refl_type *type);
 struct refl_object *refl_access (struct refl *refl, struct refl_object *obj,

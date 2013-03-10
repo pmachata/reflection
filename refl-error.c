@@ -89,10 +89,14 @@ refl_errmsg (struct refl_error error)
     case REFL_E_DWARF:
       return dwarf_errmsg (error.minor);
     case REFL_E_REFL:
-      switch (error.minor)
+      switch ((enum __refl_minor_errcode)error.minor)
 	{
 	case REFL_ME_DWARF:
 	  return "invalid dwarf";
+	case REFL_ME_MISMATCH:
+	  return "mismatch in assembly kind";
+	case REFL_ME_NOT_FOUND:
+	  return "entity not found";
 	}
     }
 

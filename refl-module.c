@@ -64,6 +64,60 @@ build_method_assembly (Dwarf_Die *die, int tag,
   return 1;
 }
 
+static int
+build_object_assembly (Dwarf_Die *die, int tag,
+		       struct refl_assembly *ret_assembly)
+{
+  Dwarf_Die type_die_mem, *type_die = __refl_die_type (die, &type_die_mem);
+  if (type_die == NULL)
+    return -1;
+
+  Dwarf_Attribute loc_att_mem, *loc_att
+    = __refl_attr_integrate (die, DW_AT_location, &loc_att_mem);
+  if (loc_att == NULL)
+    return -1;
+
+  struct refl_type *type = __refl_type_begin (type_die);
+  if (type == NULL)
+    return -1;
+
+  Dwarf_Op *ops;
+  size_t nops;
+  if (dwarf_getlocation (loc_att, &ops, &nops) < 0)
+    {
+      __refl_type_free (type);
+      __refl_seterr (REFL_E_DWARF);
+      return -1;
+    }
+
+  struct refl_object *ret = NULL;
+
+  for (size_t i = 0; i < nops; ++i)
+    switch (ops[i].atom)
+      {
+      case DW_OP_addr:
+	assert (i == nops - 1);
+	ret = __refl_object_begin (type, (void *)ops[i].number);
+	if (ret == NULL)
+	  {
+	  fail:
+	    __refl_type_free (type);
+	    return -1;
+	  }
+
+      default:
+	//fprintf (stderr, "unhandled location operator %#x\n", ops[i].atom);
+	assert (ops[i].atom == DW_OP_addr);
+      }
+
+  if (ret == NULL)
+    goto fail;
+
+  ret_assembly->kind = refl_as_object;
+  ret_assembly->u.object = ret;
+  return 0;
+}
+
 int
 refl_assembly_named (struct refl *refl, struct refl_module *reflmod,
 		     char const *name, struct refl_assembly *ret_assembly)
@@ -114,8 +168,32 @@ refl_assembly_named (struct refl *refl, struct refl_module *reflmod,
 
     case DW_TAG_subprogram:
       return build_method_assembly (die, tag, ret_assembly);
+
+    case DW_TAG_variable:
+      return build_object_assembly (die, tag, ret_assembly);
     };
 
   __refl_seterr (REFL_ME_DWARF);
   return -1;
+}
+
+struct refl_type *
+refl_assembly_get_type (struct refl_assembly *assembly)
+{
+  assert (assembly->kind == refl_as_type);
+  return assembly->u.type;
+}
+
+struct refl_method *
+refl_assembly_get_method (struct refl_assembly *assembly)
+{
+  assert (assembly->kind == refl_as_method);
+  return assembly->u.method;
+}
+
+struct refl_object *
+refl_assembly_get_object (struct refl_assembly *assembly)
+{
+  assert (assembly->kind == refl_as_object);
+  return assembly->u.object;
 }

@@ -71,3 +71,51 @@ refl_new (struct refl *refl, struct refl_type *type)
 
   return __refl_object_begin_inline (type, size);
 }
+static int
+find_named_assembly (struct refl *refl, struct refl_module *mod,
+		     char const *name, enum refl_assembly_kind kind,
+		     struct refl_assembly *assembly)
+{
+  if (refl_assembly_named (refl, mod, name, assembly) < 0)
+    {
+      __refl_seterr_2 (REFL_E_REFL, REFL_ME_NOT_FOUND);
+      return -1;
+    }
+
+  if (assembly->kind != kind)
+    {
+      __refl_seterr_2 (REFL_E_REFL, REFL_ME_MISMATCH);
+      return -1;
+    }
+
+  return 0;
+}
+
+struct refl_type *
+refl_type_named (struct refl *refl, struct refl_module *mod, char const *name)
+{
+  struct refl_assembly assembly;
+  if (find_named_assembly (refl, mod, name, refl_as_type, &assembly) < 0)
+    return NULL;
+  return refl_assembly_get_type (&assembly);
+}
+
+struct refl_method *
+refl_method_named (struct refl *refl, struct refl_module *mod,
+		   char const *name)
+{
+  struct refl_assembly assembly;
+  if (find_named_assembly (refl, mod, name, refl_as_method, &assembly) < 0)
+    return NULL;
+  return refl_assembly_get_method (&assembly);
+}
+
+struct refl_object *
+refl_object_named (struct refl *refl, struct refl_module *mod,
+		   char const *name)
+{
+  struct refl_assembly assembly;
+  if (find_named_assembly (refl, mod, name, refl_as_object, &assembly) < 0)
+    return NULL;
+  return refl_assembly_get_object (&assembly);
+}
