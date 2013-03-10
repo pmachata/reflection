@@ -105,9 +105,12 @@ struct refl_object *refl_new (struct refl *refl, struct refl_type *type);
 
 struct refl_object *refl_access (struct refl *refl, struct refl_object *obj,
 				 char const *name);
+struct refl_object *refl_deref (struct refl *refl, struct refl_object *obj);
+
 void refl_assign_int (struct refl_object *obj, int value);
 
 size_t refl_type_sizeof (struct refl *refl, struct refl_type *type);
+int refl_type_is_pointer (struct refl_type *type, bool *whetherp);
 
 void *refl_object_cdata (struct refl_object *obj);
 struct refl_type *refl_object_type (struct refl_object *obj);

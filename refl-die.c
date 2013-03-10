@@ -188,3 +188,13 @@ __refl_die_type (Dwarf_Die *die, Dwarf_Die *ret_mem)
 
   return ret;
 }
+
+Dwarf_Die *
+__refl_die_strip_cvq (Dwarf_Die *die, Dwarf_Die *ret_mem)
+{
+  while (dwarf_tag (die) == DW_TAG_const_type
+	 || dwarf_tag (die) == DW_TAG_volatile_type)
+    if (__refl_die_type (die, ret_mem) == NULL)
+      return NULL;
+  return ret_mem;
+}

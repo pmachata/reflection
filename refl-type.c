@@ -235,6 +235,17 @@ refl_type_dump (struct refl *refl, struct refl_type *type, char **bufp)
   return ret;
 }
 
+int
+refl_type_is_pointer (struct refl_type *type, bool *whetherp)
+{
+  Dwarf_Die die = type->die;
+  if (__refl_die_strip_cvq (&die, &die) == NULL)
+    return -1;
+
+  *whetherp = dwarf_tag (&type->die) == DW_TAG_pointer_type;
+  return 0;
+}
+
 static int
 find_named_assembly (struct refl *refl, struct refl_module *mod,
 		     char const *name, enum refl_assembly_kind kind,

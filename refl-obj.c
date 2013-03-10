@@ -132,6 +132,40 @@ refl_access (struct refl *refl, struct refl_object *obj, char const *lookfor)
   return NULL;
 }
 
+struct refl_object *
+refl_deref (struct refl *refl, struct refl_object *obj)
+{
+  struct refl_type *type = refl_object_type (obj);
+
+  Dwarf_Die die = type->die;
+  if (__refl_die_strip_cvq (&die, &die) == NULL)
+    return NULL;
+
+  /* Cannot dereference non-pointer type.  */
+  if (dwarf_tag (&die) != DW_TAG_pointer_type)
+    {
+      __refl_seterr_2 (REFL_E_REFL, REFL_ME_MISMATCH);
+      return NULL;
+    }
+
+  if (__refl_die_type (&die, &die) == NULL)
+    return NULL;
+
+  /* Cannot dereference function pointer.  */
+  if (dwarf_tag (&die) == DW_TAG_subroutine_type)
+    {
+      __refl_seterr_2 (REFL_E_REFL, REFL_ME_MISMATCH);
+      return NULL;
+    }
+
+  struct refl_type *ntype = __refl_type_begin (&die);
+  if (ntype == NULL)
+    return NULL;
+
+  void *ndata = *(void **)refl_object_cdata (obj);
+  return __refl_object_begin (ntype, ndata);
+}
+
 void *
 refl_object_cdata (struct refl_object *obj)
 {

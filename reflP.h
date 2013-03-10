@@ -138,4 +138,8 @@ char const *__refl_die_name (Dwarf_Die *die);
    NULL and set an error if it fails or type is unavailable.  */
 Dwarf_Die *__refl_die_type (Dwarf_Die *die, Dwarf_Die *ret_mem);
 
+/* Strip const and volatile qualifiers from a type die DIE.  Return
+   NULL and set an error if it fails.  */
+Dwarf_Die *__refl_die_strip_cvq (Dwarf_Die *die, Dwarf_Die *ret_mem);
+
 #endif//_REFLP_H_INCLUDED

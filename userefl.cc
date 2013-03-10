@@ -44,6 +44,11 @@ something (int c)
 
 int (*ddd)(int) = something;
 
+int value = 111;
+int *valuep = &value;
+int **valuepp = &valuep;
+int ***valueppp = &valuepp;
+
 static void
 d (struct mystruct *my)
 {
@@ -99,41 +104,63 @@ main (int argc, char *argv[])
       }
   }
 
-  struct refl_object *obj = refl_new (refl, mystruct);
-  if (obj == NULL)
-    error (1, 0, "refl_new: %s", refl_errmsg (refl_error ()));
+  {
+    struct refl_object *obj = refl_new (refl, mystruct);
+    if (obj == NULL)
+      error (1, 0, "refl_new: %s", refl_errmsg (refl_error ()));
 
-  struct refl_object *o = refl_access (refl, obj, "o");
-  if (o == NULL)
-    error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
-  struct refl_object *o_j = refl_access (refl, o, "j");
-  if (o_j == NULL)
-    error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
+    struct refl_object *o = refl_access (refl, obj, "o");
+    if (o == NULL)
+      error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
+    struct refl_object *o_j = refl_access (refl, o, "j");
+    if (o_j == NULL)
+      error (1, 0, "refl_access: %s", refl_errmsg (refl_error ()));
 
-  struct mystruct *my = (struct mystruct *)refl_object_cdata (obj);
+    struct mystruct *my = (struct mystruct *)refl_object_cdata (obj);
 
-  refl_assign_int (o_j, 7);
-  d (my);
+    refl_assign_int (o_j, 7);
+    d (my);
 
-  refl_assign_int (o_j, 4);
-  d (my);
+    refl_assign_int (o_j, 4);
+    d (my);
 
-  refl_assign_int (refl_access (refl, obj, "i"), 1);
-  refl_assign_int (refl_access (refl, obj, "k"), 6);
-  d (my);
+    refl_assign_int (refl_access (refl, obj, "i"), 1);
+    refl_assign_int (refl_access (refl, obj, "k"), 6);
+    d (my);
+  }
 
-  struct refl_method *st = refl_method_named (refl, mod, "something");
-  assert (st != NULL);
+  {
+    struct refl_method *st = refl_method_named (refl, mod, "something");
+    assert (st != NULL);
 
-  struct refl_object *ft = refl_new (refl, refl_type_named (refl, mod, "int"));
-  assert (ft != NULL);
-  refl_assign_int (ft, 42);
+    struct refl_object *ft = refl_new (refl,
+				       refl_type_named (refl, mod, "int"));
+    assert (ft != NULL);
+    refl_assign_int (ft, 42);
 
-  struct refl_object *rv = NULL;
-  if (refl_method_call (refl, st, &ft, 1, &rv) < 0)
-    error (1, 0, "refl_method_call: %s", refl_errmsg (refl_error ()));
-  assert (rv != NULL);
-  fprintf (stderr, "return value: %d\n", *(int *)refl_object_cdata (rv));
+    struct refl_object *rv = NULL;
+    if (refl_method_call (refl, st, &ft, 1, &rv) < 0)
+      error (1, 0, "refl_method_call: %s", refl_errmsg (refl_error ()));
+    assert (rv != NULL);
+    fprintf (stderr, "return value: %d\n", *(int *)refl_object_cdata (rv));
+  }
+
+  {
+    struct refl_object *vppp = refl_object_named (refl, mod, "valueppp");
+    while (1)
+      {
+	bool isptr;
+	if (refl_type_is_pointer (refl_object_type (vppp), &isptr) < 0)
+	  error (1, 0, "refl_type_is_pointer: %s", refl_errmsg (refl_error ()));
+	if (!isptr)
+	  break;
+	fprintf (stderr, "deref\n");
+	vppp = refl_deref (refl, vppp);
+	if (vppp == NULL)
+	  error (1, 0, "refl_deref: %s", refl_errmsg (refl_error ()));
+      }
+    fprintf (stderr, "v = %d\n", *(int *)refl_object_cdata (vppp));
+  }
 
   refl_end (refl);
   return 0;
