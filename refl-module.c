@@ -123,14 +123,6 @@ refl_assembly_named (struct refl *refl, struct refl_module *reflmod,
 		     char const *name, struct refl_assembly *ret_assembly)
 {
   Dwfl_Module *module = (Dwfl_Module *)reflmod;
-  Dwarf_Addr bias;
-  Dwarf *dwarf = dwfl_module_getdwarf (module, &bias);
-  if (dwarf == NULL)
-    {
-      __refl_seterr (REFL_E_DWFL);
-      return -1;
-    }
-
   Dwarf_Die die_mem, *die = &die_mem;
   int result = __refl_each_die (module, NULL, &die_mem, &__refl_die_attr_pred,
 				&(struct __refl_die_attr_pred)

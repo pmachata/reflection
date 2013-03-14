@@ -77,7 +77,6 @@ refl_error (void)
 char const *
 refl_errmsg (struct refl_error error)
 {
-  fprintf (stderr, "%d %d\n", error.major, error.minor);
   switch (error.major)
     {
     case REFL_E_NOERROR:
