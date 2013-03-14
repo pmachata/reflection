@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "refl.h"
 
@@ -44,7 +45,7 @@ something (int c)
 
 int (*ddd)(int) = something;
 
-int value = 111;
+extern int value;
 int *valuep = &value;
 int **valuepp = &valuep;
 int ***valueppp = &valuepp;
@@ -67,6 +68,7 @@ main (int argc, char *argv[])
     error (1, 0, "refl_module_cur: %s", refl_errmsg (refl_error ()));
 
   struct refl_type *mystruct = refl_type_named (refl, mod, "mystruct");
+  assert (mystruct != NULL);
 
   {
     char *str;
@@ -95,11 +97,12 @@ main (int argc, char *argv[])
 	union
 	{
 	  void (*ptr)(int);
-	  char buf[0];
+	  char buf[1];
 	} u;
 
 	memcpy (u.buf, refl_object_cdata (obj), sizeof u);
-	fprintf (stderr, "ddd value: %p\ndirect call: ", u.ptr);
+	fprintf (stderr, "ddd value: %p\ndirect call: ",
+		 (void *)(uintptr_t)u.ptr);
 	u.ptr (17);
       }
   }

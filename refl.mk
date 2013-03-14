@@ -8,9 +8,9 @@ LDFLAGS = $(OPENMP)
 
 all: $(TARGETS)
 
-userefl: LD = $(CXX)
 userefl: LDFLAGS += $(shell pkg-config --libs libffi)
-userefl: userefl.o librefl.so
+userefl: LD = $(CC)
+userefl: userefl.o librefl.so cosi.o
 
 refl-method.o: CFLAGS += $(shell pkg-config --cflags libffi)
 

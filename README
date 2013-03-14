@@ -10,7 +10,7 @@ call a "weekend hack", or more euphemistically, "proof of the
 concept".  It's not even a "work in progress," because, well, it was a
 "weekend hack".  That aside, here's an example of use:
 
-https://github.com/pmachata/reflection/blob/HEAD/userefl.cc
+https://github.com/pmachata/reflection/blob/HEAD/userefl.c
 
 Note that there is no way to learn what an arbitrary void* points to.
 Heap objects are not described at runtime in any way.
