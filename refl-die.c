@@ -89,32 +89,45 @@ __refl_each_die (Dwfl_Module *module, Dwarf_Die *root, Dwarf_Die *ret,
 						  void *data),
 		 void *data)
 {
+  bool iterate_cus = false;
   Dwarf_Addr bias;
   if (root == NULL)
-    root = dwfl_module_nextcu (module, NULL, &bias);
-
-  uint8_t address_size;
-  uint8_t offset_size;
-  Dwarf_Die cudie_mem, *cudie
-    = dwarf_diecu (root, &cudie_mem, &address_size, &offset_size);
-
-  if (cudie == NULL)
     {
-      __refl_seterr (REFL_E_DWARF);
-      return -1;
+      root = dwfl_module_nextcu (module, NULL, &bias);
+      iterate_cus = true;
+    }
+  else
+    {
+      uint8_t address_size;
+      uint8_t offset_size;
+      Dwarf_Die cudie_mem, *cudie
+	= dwarf_diecu (root, &cudie_mem, &address_size, &offset_size);
+
+      if (cudie == NULL)
+	{
+	  __refl_seterr (REFL_E_DWARF);
+	  return -1;
+	}
+
+      /* If ROOT isn't a CU DIE, don't iterate other CU's.  */
+      iterate_cus = dwarf_dieoffset (cudie) != dwarf_dieoffset (root);
     }
 
   while (root != NULL)
     {
       Dwarf_Die found;
-      int result = __refl_die_tree (root, &found, true, callback, data);
+      Dwarf_Die tmp = *root;
+      int result = __refl_die_tree (&tmp, &found, true, callback, data);
+
       if (result == 0 && ret != NULL)
 	*ret = found;
       if (result <= 0)
 	return result;
 
-      cudie = dwfl_module_nextcu (module, cudie, &bias);
-      root = cudie;
+      if (!iterate_cus)
+	break;
+
+      root = dwfl_module_nextcu (module, root, &bias);
     }
 
   return 1;
